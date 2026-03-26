@@ -1,293 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sprout Weeder | AI-Powered Early Weeding System</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
-}
-
-body{
-    background:#0f2027;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:#fff;
-    overflow-x:hidden;
-}
-
-/* Navigation */
-nav{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 8%;
-    position:fixed;
-    width:100%;
-    top:0;
-    background:rgba(0,0,0,0.6);
-    backdrop-filter:blur(10px);
-    z-index:1000;
-}
-
-nav h2{
-    color:#00ff9d;
-}
-
-nav ul{
-    list-style:none;
-    display:flex;
-    gap:25px;
-}
-
-nav ul li a{
-    text-decoration:none;
-    color:#fff;
-    font-weight:500;
-    transition:0.3s;
-}
-
-nav ul li a:hover{
-    color:#00ff9d;
-}
-
-/* Hero Section */
-.hero{
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    padding:0 10%;
-}
-
-.hero h1{
-    font-size:3rem;
-    margin-bottom:20px;
-}
-
-.hero span{
-    color:#00ff9d;
-}
-
-.hero p{
-    max-width:700px;
-    margin-bottom:30px;
-    opacity:0.85;
-}
-
-.btn{
-    padding:12px 30px;
-    background:#00ff9d;
-    color:#000;
-    border:none;
-    border-radius:30px;
-    cursor:pointer;
-    font-weight:600;
-    margin:10px;
-    transition:0.3s;
-}
-
-.btn:hover{
-    transform:scale(1.05);
-}
-
-/* Section */
-section{
-    padding:80px 8%;
-}
-
-.section-title{
-    text-align:center;
-    margin-bottom:50px;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:25px;
-}
-
-.card{
-    background:rgba(255,255,255,0.05);
-    padding:30px;
-    border-radius:15px;
-    transition:0.3s;
-}
-
-.card:hover{
-    transform:translateY(-10px);
-    background:rgba(0,255,157,0.1);
-}
-
-/* Stats */
-.stats{
-    display:flex;
-    justify-content:space-around;
-    flex-wrap:wrap;
-    text-align:center;
-}
-
-.stat h2{
-    font-size:2.5rem;
-    color:#00ff9d;
-}
-
-/* Footer */
-footer{
-    background:#000;
-    text-align:center;
-    padding:30px;
-    margin-top:50px;
-}
-
-@media(max-width:768px){
-    .hero h1{
-        font-size:2rem;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sprout Weeder — Biological Weed Control</title>
+  <meta name="description" content="Sprout Weeder — Reduce labour cost by 60% with fast, eco-friendly weed management for Indian farms."/>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#111a2e; --muted:#9fb0d0; --text:#e6eefc;
+      --green:#22c55e; --green-2:#16a34a; --accent:#38bdf8;
     }
-}
-</style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#1b2a4a 0%,transparent 60%),var(--bg);color:var(--text);}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:auto;padding:0 20px}
+
+    /* NAV */
+    .nav{position:sticky;top:0;background:rgba(11,18,32,.6);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06);z-index:10}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{font-weight:800;letter-spacing:.3px}
+    .nav a.btn{margin-left:10px}
+
+    /* HERO */
+    .hero{padding:80px 0 40px}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(56,189,248,.15);color:#7dd3fc;font-size:12px;margin-bottom:14px}
+    h1{font-size:44px;line-height:1.1;margin:0 0 12px}
+    .lead{font-size:18px;color:var(--muted);margin-bottom:18px}
+    .cta{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{padding:12px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.08);font-weight:700;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,var(--green),var(--green-2));color:#052e16;border:none}
+    .btn.ghost{background:transparent}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+    .kpi{background:var(--card);padding:14px;border-radius:12px;text-align:center}
+    .kpi b{font-size:20px}
+
+    .hero-card{background:linear-gradient(180deg,rgba(255,255,255,.06),transparent);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px}
+    .hero-card img{width:100%;border-radius:12px}
+
+    /* SECTIONS */
+    section{padding:60px 0}
+    h2{font-size:28px;margin:0 0 18px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.08);padding:18px;border-radius:14px;min-height:90px}
+    .card small{color:var(--muted)}
+
+    /* HOW */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .step{background:var(--card);padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,.08)}
+    .num{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.2);margin-bottom:8px}
+
+    /* CTA */
+    .cta-box{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#0f1a33,#0b1220);border:1px solid rgba(255,255,255,.08);padding:20px;border-radius:16px}
+
+    /* FOOTER */
+    footer{border-top:1px solid rgba(255,255,255,.08);padding:24px 0;color:var(--muted)}
+
+    /* RESPONSIVE */
+    @media (max-width:900px){
+      .hero-grid{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr 1fr}
+      .steps{grid-template-columns:1fr 1fr}
+      h1{font-size:36px}
+    }
+    @media (max-width:520px){
+      .grid,.steps{grid-template-columns:1fr}
+      .kpis{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
-
 <body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="container nav-inner">
+      <div class="brand">Sprout Weeder ??</div>
+      <div>
+        <a href="#solution" class="btn ghost">Solution</a>
+        <a href="#impact" class="btn ghost">Impact</a>
+        <a href="#contact" class="btn primary">Book Demo</a>
+      </div>
+    </div>
+  </div>
 
-<nav>
-<h2>Sprout Weeder</h2>
-<ul>
-<li><a href="#about">About</a></li>
-<li><a href="#products">Products</a></li>
-<li><a href="#platform">Platform</a></li>
-<li><a href="#franchise">Franchise</a></li>
-<li><a href="#contact">Contact</a></li>
-</ul>
-</nav>
+  <!-- HERO -->
+  <div class="container hero">
+    <div class="hero-grid">
+      <div>
+        <div class="badge">India’s Next-Gen Weed Management</div>
+        <h1>Biological Weed Control for Indian Farms</h1>
+        <p class="lead">Cut labour costs, speed up operations, and protect soil health with Sprout Weeder.</p>
+        <div class="cta">
+          <a class="btn primary" href="#contact">Book Demo</a>
+          <a class="btn ghost" href="https://wa.me/91XXXXXXXXXX">WhatsApp</a>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><b>60%</b><br><small>Cost Reduction</small></div>
+          <div class="kpi"><b>3X</b><br><small>Faster</small></div>
+          <div class="kpi"><b>100%</b><br><small>Chemical-Free</small></div>
+        </div>
+      </div>
+      <div class="hero-card">
+        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1200&auto=format&fit=crop" alt="Farm field"/>
+      </div>
+    </div>
+  </div>
 
-<!-- Hero -->
-<div class="hero">
-<h1>Algorithm-Led <span>Biological Window</span> Weeding</h1>
-<p>AI + IoT + Drone enabled early-stage weed control system for paddy fields. Reduce methane, reduce labor cost, and increase yield efficiency.</p>
-<button class="btn">Explore Products</button>
-<button class="btn">Become Partner</button>
-</div>
+  <!-- PROBLEM -->
+  <section class="container">
+    <h2>?? The Problem</h2>
+    <div class="grid">
+      <div class="card">Manual weeding is slow & costly</div>
+      <div class="card">Labour shortage is rising</div>
+      <div class="card">Chemicals harm soil health</div>
+      <div class="card">Yield & margins are impacted</div>
+    </div>
+  </section>
 
-<!-- About -->
-<section id="about">
-<h2 class="section-title">Why Sprout Weeder?</h2>
-<div class="cards">
-<div class="card">
-<h3>Early Window Detection</h3>
-<p>Operates within 3–5 day biological weed window for maximum efficiency.</p>
-</div>
-<div class="card">
-<h3>AI Powered</h3>
-<p>Edge AI + Central Intelligence Engine for real-time field decisions.</p>
-</div>
-<div class="card">
-<h3>Methane Reduction</h3>
-<p>Supports AWD model to reduce methane emissions in paddy cultivation.</p>
-</div>
-</div>
-</section>
+  <!-- SOLUTION -->
+  <section id="solution" class="container">
+    <h2>? Our Solution</h2>
+    <div class="grid">
+      <div class="card"><b>Eco-friendly</b><br><small>No harmful chemicals</small></div>
+      <div class="card"><b>Cost-effective</b><br><small>Lower per-acre spend</small></div>
+      <div class="card"><b>Fast</b><br><small>3X quicker operations</small></div>
+      <div class="card"><b>Field-ready</b><br><small>Built for Indian crops</small></div>
+    </div>
+  </section>
 
-<!-- Products -->
-<section id="products">
-<h2 class="section-title">Product Portfolio</h2>
-<div class="cards">
-<div class="card">
-<h3>Manual Sprout Weeder</h3>
-<p>Affordable rural edition for small farmers.</p>
-</div>
-<div class="card">
-<h3>Cordless AI Weeder</h3>
-<p>Battery-powered smart weeding device.</p>
-</div>
-<div class="card">
-<h3>Drone Sprout System</h3>
-<p>Large acreage intelligent biological window operations.</p>
-</div>
-</div>
-</section>
+  <!-- IMPACT -->
+  <section id="impact" class="container">
+    <h2>?? Impact</h2>
+    <div class="grid">
+      <div class="card"><b>60%</b><br><small>Labour cost reduction</small></div>
+      <div class="card"><b>3X</b><br><small>Faster weeding</small></div>
+      <div class="card"><b>Multi-crop</b><br><small>Flexible usage</small></div>
+      <div class="card"><b>Soil Health</b><br><small>Improved sustainability</small></div>
+    </div>
+  </section>
 
-<!-- Platform -->
-<section id="platform">
-<h2 class="section-title">Sprout AI Platform</h2>
-<div class="cards">
-<div class="card">
-<h3>Biological Window Intelligence</h3>
-<p>Predictive crop-stage and weed-stage algorithm.</p>
-</div>
-<div class="card">
-<h3>Carbon Ledger</h3>
-<p>Tracks methane reduction and carbon impact per acre.</p>
-</div>
-<div class="card">
-<h3>AgriStack Ready</h3>
-<p>Integrated with digital agriculture infrastructure.</p>
-</div>
-</div>
-</section>
+  <!-- HOW IT WORKS -->
+  <section class="container">
+    <h2>?? How It Works</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div>Deploy in field</div>
+      <div class="step"><div class="num">2</div>Operate with trained operator</div>
+      <div class="step"><div class="num">3</div>Efficient weed removal</div>
+      <div class="step"><div class="num">4</div>Save time & cost</div>
+    </div>
+  </section>
 
-<!-- Stats -->
-<section>
-<div class="stats">
-<div class="stat">
-<h2 id="acres">0</h2>
-<p>Acres Target</p>
-</div>
-<div class="stat">
-<h2 id="methane">0</h2>
-<p>% Methane Reduction</p>
-</div>
-<div class="stat">
-<h2 id="roi">0</h2>
-<p>% ROI Potential</p>
-</div>
-</div>
-</section>
+  <!-- BUSINESS MODEL -->
+  <section class="container">
+    <h2>?? Business Model</h2>
+    <div class="grid">
+      <div class="card">Per-acre service pricing</div>
+      <div class="card">Operator-led deployment</div>
+      <div class="card">District franchise model</div>
+      <div class="card">Scalable across regions</div>
+    </div>
+  </section>
 
-<!-- Franchise -->
-<section id="franchise">
-<h2 class="section-title">National Franchise Model</h2>
-<div class="card">
-<p>Investment Range: ?2L – ?25L</p>
-<p>District-based exclusive operations</p>
-<p>Training + AI Support + Central Platform Access</p>
-<button class="btn">Apply Now</button>
-</div>
-</section>
+  <!-- CTA -->
+  <section id="contact" class="container">
+    <div class="cta-box">
+      <div>
+        <h2>?? Get Started</h2>
+        <p class="lead">Book a demo or partner with us today.</p>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="#">Book Demo</a>
+        <a class="btn ghost" href="https://wa.me/91XXXXXXXXXX">WhatsApp Now</a>
+      </div>
+    </div>
+  </section>
 
-<!-- Contact -->
-<section id="contact">
-<h2 class="section-title">Contact Us</h2>
-<div class="card">
-<p>Email: info@sproutweeder.com</p>
-<p>Phone: +91-XXXXXXXXXX</p>
-<button class="btn">Request Demo</button>
-</div>
-</section>
-
-<footer>
-<p>© 2026 Sprout Weeder | AI Driven Biological Weeding Platform</p>
-</footer>
-
-<script>
-let acres=0;
-let methane=0;
-let roi=0;
-
-let interval=setInterval(()=>{
-if(acres<100000){acres+=1000;document.getElementById("acres").innerText=acres;}
-if(methane<40){methane+=1;document.getElementById("methane").innerText=methane;}
-if(roi<60){roi+=2;document.getElementById("roi").innerText=roi;}
-},50);
-</script>
-
+  <footer>
+    <div class="container">© 2026 Sprout Weeder • Contact: +91 XXXXX XXXXX</div>
+  </footer>
 </body>
 </html>
