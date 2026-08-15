@@ -1,13 +1,714 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SproutWeeder</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SproutWeeder.Com — Sprout Weeding-as-a-Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-deep:   #1a3c2b;
+      --green-mid:    #2e6b44;
+      --green-light:  #4caf76;
+      --green-pale:   #d4edda;
+      --yellow:       #f5c518;
+      --red-weed:     #e03535;
+      --cream:        #f9f6ee;
+      --slate:        #4a5568;
+      --white:        #ffffff;
+      --card-shadow:  0 8px 32px rgba(26,60,43,.12);
+      --radius:       14px;
+      --transition:   .3s cubic-bezier(.4,0,.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--green-deep); overflow-x: hidden; }
+
+    .container { width: 100%; max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+    .btn { display: inline-block; padding: 13px 28px; border-radius: 50px; font-weight: 600; font-size: .95rem; cursor: pointer; border: none; transition: var(--transition); text-decoration: none; }
+    .btn-primary { background: var(--green-mid); color: var(--white); }
+    .btn-primary:hover { background: var(--green-deep); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,107,68,.35); }
+    .btn-outline { background: transparent; color: var(--green-mid); border: 2px solid var(--green-mid); }
+    .btn-outline:hover { background: var(--green-mid); color: var(--white); }
+
+    /* ── NAV ── */
+    nav { position: sticky; top: 0; z-index: 200; background: var(--green-deep); box-shadow: 0 2px 20px rgba(0,0,0,.25); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; max-width: 1140px; margin: 0 auto; height: 58px; }
+    .brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--green-pale); letter-spacing: .4px; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+    .brand span { color: var(--yellow); }
+
+    /* Hamburger */
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; z-index: 201; }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: var(--transition); }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Top-level list */
+    .nav-links { display: flex; gap: 2px; list-style: none; align-items: center; height: 100%; }
+    .nav-links > li { position: relative; height: 100%; display: flex; align-items: center; }
+
+    /* Top-level link / trigger */
+    .nav-links > li > a,
+    .nav-links > li > .nav-trigger {
+      color: rgba(255,255,255,.82);
+      text-decoration: none; font-size: .82rem; font-weight: 500;
+      padding: 6px 11px; border-radius: 6px;
+      transition: var(--transition); white-space: nowrap;
+      display: flex; align-items: center; gap: 4px;
+      cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif;
+    }
+    .nav-links > li > a:hover,
+    .nav-links > li > .nav-trigger:hover,
+    .nav-links > li.open > .nav-trigger { background: rgba(255,255,255,.11); color: var(--white); }
+
+    /* Caret */
+    .caret { display: inline-block; font-size: .6rem; transition: transform .25s ease; opacity: .6; line-height: 1; }
+    .nav-links > li.open .caret { transform: rotate(180deg); }
+
+    /* ── DROPDOWN PANEL ── */
+    .dropdown {
+      position: absolute; top: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: #122019;
+      border: 1px solid rgba(76,175,118,.18);
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      min-width: 210px;
+      padding: 10px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      z-index: 300;
+    }
+    .nav-links > li.open .dropdown {
+      opacity: 1; pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Wide mega dropdown */
+    .dropdown.mega { min-width: 520px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .dropdown.wide { min-width: 300px; }
+
+    /* Dropdown item */
+    .dd-item {
+      display: flex; align-items: flex-start; gap: 11px;
+      padding: 10px 12px; border-radius: 9px;
+      text-decoration: none; color: rgba(255,255,255,.78);
+      transition: background var(--transition), color var(--transition);
+    }
+    .dd-item:hover { background: rgba(76,175,118,.13); color: var(--white); }
+    .dd-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+    .dd-text .dd-title { font-size: .83rem; font-weight: 600; line-height: 1.2; color: var(--white); }
+    .dd-text .dd-desc  { font-size: .72rem; color: rgba(255,255,255,.45); margin-top: 2px; line-height: 1.4; }
+
+    /* Divider label inside dropdown */
+    .dd-section { font-size: .64rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--green-light); padding: 8px 12px 4px; opacity: .7; }
+
+    /* Dropdown footer CTA */
+    .dd-footer {
+      margin-top: 6px; padding: 10px 12px 4px;
+      border-top: 1px solid rgba(76,175,118,.1);
+    }
+    .dd-footer a { font-size: .75rem; color: var(--green-light); text-decoration: none; font-weight: 600; }
+    .dd-footer a:hover { text-decoration: underline; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 820px) {
+      .nav-toggle { display: flex; }
+      .nav-links {
+        position: absolute; top: 58px; left: 0; right: 0;
+        background: var(--green-deep);
+        flex-direction: column; gap: 0; height: auto; align-items: stretch;
+        max-height: 0; overflow: hidden;
+        transition: max-height .38s ease;
+        border-top: 1px solid rgba(255,255,255,.08);
+      }
+      .nav-links.open { max-height: 90vh; overflow-y: auto; }
+      .nav-links > li { height: auto; flex-direction: column; align-items: stretch; }
+      .nav-links > li > a,
+      .nav-links > li > .nav-trigger {
+        padding: 12px 22px; border-radius: 0; justify-content: space-between;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+        font-size: .9rem;
+      }
+      /* Mobile dropdown */
+      .dropdown, .dropdown.mega, .dropdown.wide {
+        position: static; transform: none; min-width: 0; width: 100%;
+        border-radius: 0; border: none; box-shadow: none;
+        background: rgba(0,0,0,.25);
+        padding: 0; grid-template-columns: 1fr;
+        max-height: 0; overflow: hidden;
+        transition: max-height .3s ease, opacity .2s ease;
+        opacity: 0;
+      }
+      .nav-links > li.open .dropdown { max-height: 600px; opacity: 1; pointer-events: auto; }
+      .dd-item { padding: 10px 32px; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+      .dd-footer { padding: 10px 32px; }
+      .dd-section { padding: 10px 32px 4px; }
+    }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, var(--green-deep) 0%, #254d38 60%, #1f4530 100%); padding: 72px 20px 64px; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(76,175,118,.13), transparent); pointer-events: none; }
+    .hero-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; }
+    .hero-eyebrow { display: inline-block; background: rgba(245,197,24,.15); color: var(--yellow); font-size: .78rem; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; padding: 5px 14px; border-radius: 50px; margin-bottom: 18px; border: 1px solid rgba(245,197,24,.3); }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.12; color: var(--white); margin-bottom: 10px; }
+    .hero h1 em { color: var(--red-weed); font-style: normal; }
+    .hero-sub { color: rgba(255,255,255,.65); font-size: .95rem; font-weight: 300; margin-bottom: 28px; line-height: 1.6; }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .timeline-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 20px; backdrop-filter: blur(8px); }
+    .timeline-title { color: rgba(255,255,255,.7); font-size: .72rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px; }
+    .timeline-stages { display: flex; align-items: center; }
+    .stage { flex: 1; text-align: center; position: relative; }
+    .stage::after { content: '→'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.4); font-size: .9rem; }
+    .stage:last-child::after { display: none; }
+    .stage-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-size: 1.1rem; }
+    .stage-dot.g { background: #a8d5b5; }
+    .stage-dot.s { background: #6fbf8a; }
+    .stage-dot.e { background: #3d9e5c; }
+    .stage-dot.m { background: var(--red-weed); }
+    .stage-label { color: rgba(255,255,255,.8); font-size: .66rem; font-weight: 500; }
+    .stage-sub { color: rgba(255,255,255,.4); font-size: .58rem; margin-top: 2px; }
+    .intervention { margin-top: 14px; padding: 10px 14px; background: rgba(76,175,118,.18); border-radius: 8px; border-left: 3px solid var(--green-light); display: flex; align-items: center; gap: 8px; }
+    .intervention span { color: var(--green-light); font-size: .8rem; font-weight: 500; }
+
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+      .timeline-card { order: -1; }
+    }
+
+    /* SECTION HEADER */
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem, 4vw, 2.5rem); color: var(--green-deep); margin-bottom: 10px; }
+    .section-header p { color: var(--slate); font-size: .95rem; max-width: 540px; margin: 0 auto; }
+    .section-pill { display: inline-block; background: var(--green-pale); color: var(--green-mid); font-size: .72rem; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; padding: 4px 12px; border-radius: 50px; margin-bottom: 12px; }
+
+    /* SERVICES */
+    .services { padding: 80px 20px; background: var(--cream); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    .service-card { background: var(--white); border-radius: var(--radius); padding: 32px 28px; box-shadow: var(--card-shadow); border: 1px solid rgba(46,107,68,.07); transition: var(--transition); position: relative; overflow: hidden; }
+    .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--green-mid), var(--green-light)); transform: scaleX(0); transform-origin: left; transition: var(--transition); }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 18px 48px rgba(26,60,43,.16); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-icon { font-size: 2.4rem; margin-bottom: 16px; }
+    .service-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--green-deep); margin-bottom: 8px; }
+    .service-card p { font-size: .88rem; color: var(--slate); line-height: 1.6; }
+
+    /* HOW IT WORKS */
+    .how { padding: 80px 20px; background: var(--green-deep); }
+    .how .section-header h2 { color: var(--white); }
+    .how .section-header p { color: rgba(255,255,255,.6); }
+    .how .section-pill { background: rgba(76,175,118,.2); color: var(--green-light); }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; position: relative; }
+    .steps::before { content: ''; position: absolute; top: 36px; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, transparent, var(--green-light), transparent); opacity: .3; }
+    @media (max-width: 640px) { .steps::before { display: none; } .steps { gap: 24px; } }
+    .step { text-align: center; padding: 0 16px; position: relative; }
+    .step-num { width: 72px; height: 72px; border-radius: 50%; background: rgba(76,175,118,.15); border: 2px solid var(--green-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--green-light); margin: 0 auto 18px; position: relative; z-index: 1; }
+    .step h3 { color: var(--white); font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .step p { color: rgba(255,255,255,.55); font-size: .85rem; line-height: 1.6; }
+
+    /* FLEET */
+    .fleet { padding: 80px 20px; background: #f0f7f2; }
+    .fleet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+    .fleet-card { background: var(--white); border-radius: var(--radius); padding: 32px 28px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 14px; transition: var(--transition); }
+    .fleet-card:hover { transform: translateY(-4px); }
+    .fleet-emoji { font-size: 3rem; }
+    .fleet-card h3 { font-size: 1.05rem; font-weight: 600; color: var(--green-deep); }
+    .fleet-card p { font-size: .88rem; color: var(--slate); line-height: 1.6; flex: 1; }
+    .fleet-tag { display: inline-block; background: var(--green-pale); color: var(--green-mid); font-size: .72rem; font-weight: 600; padding: 4px 10px; border-radius: 50px; letter-spacing: .5px; }
+
+    /* REGISTER */
+    .register { padding: 80px 20px; background: linear-gradient(135deg, var(--green-deep), #2d6145); }
+    .register-inner { max-width: 1060px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .register-left h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 2.8rem); color: var(--white); line-height: 1.15; margin-bottom: 16px; }
+    .register-left h2 em { color: var(--yellow); font-style: normal; }
+    .register-left p { color: rgba(255,255,255,.65); font-size: .95rem; line-height: 1.7; margin-bottom: 28px; }
+    .badge-list { display: flex; flex-wrap: wrap; gap: 10px; }
+    .badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 50px; padding: 6px 14px; color: rgba(255,255,255,.85); font-size: .8rem; font-weight: 500; }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); }
+    .form-card { background: var(--white); border-radius: 20px; padding: 40px 36px; box-shadow: 0 24px 64px rgba(0,0,0,.25); }
+    .form-card h3 { font-family: 'Playfair Display', serif; font-size: 1.65rem; color: var(--green-deep); margin-bottom: 6px; text-align: center; }
+    .form-card .form-sub { text-align: center; color: var(--slate); font-size: .83rem; margin-bottom: 26px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .form-field label { font-size: .78rem; font-weight: 600; color: var(--slate); letter-spacing: .4px; }
+    .form-field input, .form-field select { padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--green-deep); background: #fafafa; transition: var(--transition); outline: none; }
+    .form-field input:focus, .form-field select:focus { border-color: var(--green-mid); background: var(--white); box-shadow: 0 0 0 3px rgba(46,107,68,.1); }
+    .form-submit { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--green-mid), var(--green-deep)); color: var(--white); border: none; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); margin-top: 6px; letter-spacing: .3px; }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,60,43,.35); }
+    .form-note { text-align: center; font-size: .75rem; color: var(--slate); margin-top: 12px; }
+    @media (max-width: 768px) { .register-inner { grid-template-columns: 1fr; gap: 40px; } .form-card { padding: 30px 22px; } }
+
+    /* PRICING */
+    .pricing { padding: 80px 20px; background: var(--cream); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 960px; margin: 0 auto; }
+    .price-card { background: var(--white); border-radius: var(--radius); padding: 36px 28px; box-shadow: var(--card-shadow); border: 2px solid transparent; transition: var(--transition); text-align: center; }
+    .price-card.featured { border-color: var(--green-mid); background: linear-gradient(160deg, var(--green-deep), #2e6b44); color: var(--white); transform: scale(1.04); }
+    .price-card:hover:not(.featured) { border-color: var(--green-light); }
+    .price-tier { font-size: .75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; color: var(--green-mid); }
+    .price-card.featured .price-tier { color: var(--yellow); }
+    .price-amount { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 900; line-height: 1; margin-bottom: 4px; color: var(--green-deep); }
+    .price-card.featured .price-amount { color: var(--white); }
+    .price-period { font-size: .8rem; color: var(--slate); margin-bottom: 24px; }
+    .price-card.featured .price-period { color: rgba(255,255,255,.6); }
+    .price-features { list-style: none; text-align: left; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .price-features li { font-size: .87rem; display: flex; gap: 8px; align-items: flex-start; color: var(--slate); }
+    .price-card.featured .price-features li { color: rgba(255,255,255,.8); }
+    .price-features li::before { content: '✓'; color: var(--green-light); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .price-card.featured .price-features li::before { color: var(--yellow); }
+
+    /* FOOTER */
+    footer { background: var(--green-deep); color: rgba(255,255,255,.6); padding: 48px 20px 28px; }
+    .footer-inner { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+    @media (max-width: 768px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; } }
+    @media (max-width: 480px) { .footer-inner { grid-template-columns: 1fr; } }
+    .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--green-pale); margin-bottom: 10px; }
+    .footer-brand span { color: var(--yellow); }
+    .footer-desc { font-size: .83rem; line-height: 1.7; margin-bottom: 16px; }
+    .footer-col h4 { color: var(--white); font-size: .82rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .85rem; transition: var(--transition); }
+    .footer-col ul a:hover { color: var(--green-light); }
+    .footer-bottom { max-width: 1140px; margin: 36px auto 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .footer-bottom p { font-size: .78rem; }
+    .footer-bottom a { color: var(--green-light); text-decoration: none; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-content > * { animation: fadeUp .7s ease both; }
+    .hero-content > *:nth-child(1) { animation-delay: .1s; }
+    .hero-content > *:nth-child(2) { animation-delay: .22s; }
+    .hero-content > *:nth-child(3) { animation-delay: .34s; }
+    .hero-content > *:nth-child(4) { animation-delay: .46s; }
+    .timeline-card { animation: fadeUp .7s .55s ease both; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-mid); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: .9rem; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,.25); transition: transform .4s cubic-bezier(.34,1.56,.64,1); z-index: 9999; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi5g49VJuQO0ctszmWIolxVJG5zp5YfOZOLLNur7BwEOeDjaTVLE9hov4VJs_DqJGhq4vWePPPO4VLLLx5h3sXDIO-xB3v6beiHWse-lhl38BUBNEWA3coSe4oLNHR4nq4JNxAlTQBZhmGUBPSCtGLYNjahrxUN6qSYj5puaUb60D3jjQ-C5dbXkE23rFWl"width="1000" height="550">
-     <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjb5oLUtpIPkubpOHRZubgWzesoBILot-XjAoiTFwO9Rk-J4Xzn8xvPbUlPS2x23OLn-d1KjGfC0oH9VejNceBfE7Vt0z-Yw_2rVOi0EFsf_T1XqCojfnyGa9Is51T81Yvg98JBiCUHCL6LAcm3RI_KJGJmT2FbTzyudW3f1_-SkvAEVdMw9nxqxSmcB47Z"width="1000" height="550">
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="brand">Sprout<span>Weeder</span>.Com</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+
+      <!-- About Us -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-about">About Us <span class="caret">▼</span></button>
+        <div class="dropdown wide" id="dd-about">
+          <a class="dd-item" href="#about"><span class="dd-icon">🌱</span><span class="dd-text"><span class="dd-title">Our Mission</span></span></a>
+          <a class="dd-item" href="#about"><span class="dd-icon">👨‍🌾</span><span class="dd-text"><span class="dd-title">Founding Team</span></span></a>
+          <a class="dd-item" href="#about"><span class="dd-icon">🏆</span><span class="dd-text"><span class="dd-title">Awards & Recognition</span></span></a>
+          <a class="dd-item" href="#about"><span class="dd-icon">📰</span><span class="dd-text"><span class="dd-title">Press & Media</span><span class="dd-desc">News</span></span></a>
+          <div class="dd-footer"><a href="#register">Join as a Partner →</a></div>
+        </div>
+      </li>
+
+
+   <!-- AI Agents -->
+     <li>
+        <button class="nav-trigger" data-dd="dd-products">AI Agents <span class="caret">▼</span></button>
+        <div class="dropdown mega" id="dd-products">
+          <div>
+            <div class="dd-section">Hardware</div>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🚁</span><span class="dd-text"><span class="dd-title">Manual Sprout Weeder</span><span class="dd-desc">1</span></span></a>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🚐</span><span class="dd-text"><span class="dd-title">Cordless Sprout Weeder</span><span class="dd-desc">2</span></span></a>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🛵</span><span class="dd-text"><span class="dd-title">Robotic Sprout Weeder </span><span class="dd-desc">3</span></span></a>
+          </div>
+          <div>
+            <div class="dd-section">Software</div>
+            <a class="dd-item" href="#agristack"><span class="dd-icon">📊</span><span class="dd-text"><span class="dd-title">Mobile App</span><span class="dd-desc">1</span></span></a>
+            <a class="dd-item" href="#agristack"><span class="dd-icon">📊</span><span class="dd-text"><span class="dd-title">Dashboard</span><span class="dd-desc">2</span></span></a>
+            <a class="dd-item" href="#system"><span class="dd-icon">🧠</span><span class="dd-text"><span class="dd-title">AI Detection Engine</span><span class="dd-desc">3</span></span></a>
+
+          </div>
+          <div style="grid-column:1/-1">
+            <div class="dd-footer"><a href="#pricing">See all plans & pricing →</a></div>
+          </div>
+        </div>
+      </li>
+
+
+
+      <!-- Products -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-products">Products <span class="caret">▼</span></button>
+        <div class="dropdown mega" id="dd-products">
+          <div>
+            <div class="dd-section">Hardware</div>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🚁</span><span class="dd-text"><span class="dd-title">Manual Sprout Weeder</span><span class="dd-desc">1</span></span></a>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🚐</span><span class="dd-text"><span class="dd-title">Cordless Sprout Weeder</span><span class="dd-desc">2</span></span></a>
+            <a class="dd-item" href="#platform"><span class="dd-icon">🛵</span><span class="dd-text"><span class="dd-title">Robotic Sprout Weeder </span><span class="dd-desc">3</span></span></a>
+          </div>
+          <div>
+            <div class="dd-section">Software</div>
+            <a class="dd-item" href="#agristack"><span class="dd-icon">📊</span><span class="dd-text"><span class="dd-title">Mobile App</span><span class="dd-desc">1</span></span></a>
+            <a class="dd-item" href="#agristack"><span class="dd-icon">📊</span><span class="dd-text"><span class="dd-title">Dashboard</span><span class="dd-desc">2</span></span></a>
+            <a class="dd-item" href="#system"><span class="dd-icon">🧠</span><span class="dd-text"><span class="dd-title">AI Detection Engine</span><span class="dd-desc">3</span></span></a>
+
+          </div>
+          <div style="grid-column:1/-1">
+            <div class="dd-footer"><a href="#pricing">See all plans & pricing →</a></div>
+          </div>
+        </div>
+      </li>
+
+      <!-- Services -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-services">Services <span class="caret">▼</span></button>
+        <div class="dropdown mega" id="dd-services">
+          <div>
+            <div class="dd-section">Field Operations</div>
+            <a class="dd-item" href="#services"><span class="dd-icon">🛰️</span><span class="dd-text"><span class="dd-title">AI Scan & Mapping</span><span class="dd-desc">1</span></span></a>
+            <a class="dd-item" href="#services"><span class="dd-icon">🚁</span><span class="dd-text"><span class="dd-title">Drone Intervention</span><span class="dd-desc">2</span></span></a>
+            <a class="dd-item" href="#services"><span class="dd-icon">🛵</span><span class="dd-text"><span class="dd-title">Ground Crew Dispatch</span><span class="dd-desc">3</span></span></a>
+          </div>
+          <div>
+            <div class="dd-section">Analytics</div>
+            <a class="dd-item" href="#services"><span class="dd-icon">🔬</span><span class="dd-text"><span class="dd-title">Soil & Analytics</span><span class="dd-desc">Germination Forecasting</span></span></a>
+            <a class="dd-item" href="#services"><span class="dd-icon">📈</span><span class="dd-text"><span class="dd-title">Yield Impact Reports</span><span class="dd-desc">ROI/Intervention Cycle</span></span></a>
+            <a class="dd-item" href="#services"><span class="dd-icon">⚡</span><span class="dd-text"><span class="dd-title">EV Fleet Charging</span><span class="dd-desc">3</span></span></a>
+          </div>
+          <div style="grid-column:1/-1"><div class="dd-footer"><a href="#register">Start free trial →</a></div></div>
+        </div>
+      </li>
+
+      <!-- System -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-system">System <span class="caret">▼</span></button>
+        <div class="dropdown wide" id="dd-system">
+          <a class="dd-item" href="#system"><span class="dd-icon">🔄</span><span class="dd-text"><span class="dd-title">How It Works</span><span class="dd-desc">Scan → Detect → Dispatch → Report</span></span></a>
+
+          <a class="dd-item" href="#system"><span class="dd-icon">🔗</span><span class="dd-text"><span class="dd-title">API & Integrations</span><span class="dd-desc">Connect with ERP, FMS & govt portals</span></span></a>
+        </div>
+      </li>
+
+      <!-- Platform -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-platform">Platform <span class="caret">▼</span></button>
+        <div class="dropdown wide" id="dd-platform">
+          <a class="dd-item" href="#platform"><span class="dd-icon">🗺️</span><span class="dd-text"><span class="dd-title">Field Dashboard</span><span class="dd-desc">Maps & Alerts</span></span></a>
+          <a class="dd-item" href="#platform"><span class="dd-icon">🚁</span><span class="dd-text"><span class="dd-title">Fleet Management</span><span class="dd-desc">2</span></span></a>
+          <a class="dd-item" href="#platform"><span class="dd-icon">📊</span><span class="dd-text"><span class="dd-title">Analytics Hub</span><span class="dd-desc">Season-Over-Season Weed Trend Reports</span></span></a>
+          <a class="dd-item" href="#platform"><span class="dd-icon">🔔</span><span class="dd-text"><span class="dd-title">Alert Centre</span><span class="dd-desc">SMS, App & Email Weed Risk Notifications</span></span></a>
+          <div class="dd-footer"><a href="#register">Try the platform free →</a></div>
+        </div>
+      </li>
+
+      <!-- Agristack -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-agristack">Agristack <span class="caret">▼</span></button>
+        <div class="dropdown wide" id="dd-agristack">
+          <a class="dd-item" href="#agristack"><span class="dd-icon">🌾</span><span class="dd-text"><span class="dd-title">Farmer Registry</span><span class="dd-desc">Linked To National Land & Crop Records</span></span></a>
+          <a class="dd-item" href="#agristack"><span class="dd-icon">🧾</span><span class="dd-text"><span class="dd-title">Crop Passbook</span><span class="dd-desc">Intervention History Per Season</span></span></a>
+          <a class="dd-item" href="#agristack"><span class="dd-icon">💳</span><span class="dd-text"><span class="dd-title">Subsidy Integration</span><span class="dd-desc">Automatic Govt Scheme Eligibility Checks</span></span></a>
+          <a class="dd-item" href="#agristack"><span class="dd-icon">🤝</span><span class="dd-text"><span class="dd-title">FPO Connect</span><span class="dd-desc">Group Pricing For FPOs</span></span></a>
+        </div>
+      </li>
+
+      <!-- DPI -->
+      <li>
+        <button class="nav-trigger" data-dd="dd-dpi">DPI <span class="caret">▼</span></button>
+        <div class="dropdown wide" id="dd-dpi">
+          <a class="dd-item" href="#dpi"><span class="dd-icon">🏛️</span><span class="dd-text"><span class="dd-title">Govt API Gateway</span><span class="dd-desc">1</span></span></a>
+          <a class="dd-item" href="#dpi"><span class="dd-icon">🪪</span><span class="dd-text"><span class="dd-title">eKYC & Aadhaar</span><span class="dd-desc">2</span></span></a>
+          <a class="dd-item" href="#dpi"><span class="dd-icon">💸</span><span class="dd-text"><span class="dd-title">UPI Payments</span><span class="dd-desc">3</span></span></a>
+          <a class="dd-item" href="#dpi"><span class="dd-icon">📜</span><span class="dd-text"><span class="dd-title">Open Data Compliance</span><span class="dd-desc">4</span></span></a>
+        </div>
+      </li>
+
+      <!-- Pricing — simple link -->
+      <li><a href="#pricing">Pricing</a></li>
+
+    </ul>
+  </div>
+</nav>
+
+<section class="hero" id="about">
+  <div class="hero-grid">
+    <div class="hero-content">
+
+ <!--  <div class="hero-eyebrow">sWaaS · AI-Powered Agriculture</div> -->
+
+      <h1>Sprout Weeding<br/>-as-a-<em>Service</em></h1>
+      <p class="hero-sub">First Integrated Early-Stage Sprout Weeding Ecosystem powered by AI + IoT — Eliminate  and  Kill Weeds At Sprout Level i.e Two Leafs.</p>
+      <div class="hero-ctas">
+        <a href="#register" class="btn btn-primary">Create Account</a>
+        <a href="#services" class="btn" style="color:rgba(255,255,255,.8);border:2px solid rgba(255,255,255,.35);background:transparent;">Explore Services</a>
+      </div>
+    </div>
+    <div class="timeline-card">
+      <div class="timeline-title">🌱  Sprout Weed Growth Timeline :: Intervention Logic</div>
+      <div class="timeline-stages">
+        <div class="stage">
+          <div class="stage-dot g">🌰</div>
+          <div class="stage-label">Germination</div>
+          <div class="stage-sub">Day 1–2</div>
+        </div>
+        <div class="stage">
+          <div class="stage-dot s">🌿</div>
+          <div class="stage-label">Sprouting</div>
+          <div class="stage-sub">Day 3–4</div>
+        </div>
+        <div class="stage">
+          <div class="stage-dot e">🌱</div>
+          <div class="stage-label">Early Growth</div>
+          <div class="stage-sub">Day 5–6</div>
+        </div>
+       
+      </div>
+      <div class="intervention">
         
+        <span>Most Cost Effective “Biological Window” When Weeds Are Weakest </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-pill">Our AI + IoT Service</div>
+      <h2>Complete Sprout Weed Management (AI + IoT)</h2>
+      <p>The Most Cost Effective “Biological Window” i.e. Early-Stage Sprouting Weeds  (3–5 days)  When Weeds Are Weakest.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card"><div class="service-icon">🛰️</div><h3>AI Detection &amp; Mapping</h3><p>Mobile, drone and satellite imagery analysed by our AI engine to map weed pressure across your entire field before visible growth begins.</p></div>
+      <div class="service-card"><div class="service-icon">🛵</div><h3>Ground Crew Dispatch</h3><p>On-demand field technicians on electric motorbikes reach remote plots within hours for manual intervention and soil sampling.</p></div>     
+      <div class="service-card"><div class="service-icon">🚁</div><h3>Drone Weeding Units</h3><p>Electric drone teams dispatch micro-targeted treatments the moment early sprout activity is confirmed, minimising herbicide use by up to 70%.</p></div>
+
+      <div class="service-card"><div class="service-icon">📊</div><h3>Agristack Dashboard</h3><p>Real-time field health scores, weed risk indices, intervention logs and yield-impact reports — all in one mobile-ready dashboard.</p></div>
+      <div class="service-card"><div class="service-icon">🔬</div><h3>Soil &amp; Species Analytics</h3><p>Identify weed species, forecast germination windows, and receive precision input recommendations based on soil biology data.</p></div>
+      <div class="service-card"><div class="service-icon">⚡</div><h3>EV Fleet Charging</h3><p>Integrated green-energy charging network ensures our entire electric fleet — bikes, vans, and drones — operates with zero emissions.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="system">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-pill">How It Works</div>
+      <h2>From Scan to Clear Field</h2>
+      <p>Four intelligent steps that protect your crop from the moment the first weed seed stirs.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Scan</h3><p>Mobile / Drone / satellite pass captures multispectral field data every intervals.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Detect</h3><p>AI model identifies germination hotspots and classifies weed species in real time.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Dispatch</h3><p>Nearest ground crew or drone  is automatically routed to the target zone within booked hours.</p></div>
+      <div class="step"><div class="step-num">4</div><h3>Report</h3><p>Treatment verified by post-intervention scan; full audit trail delivered to your dashboard.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="fleet" id="platform">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-pill">Our Fleet</div>
+      <h2>Built for the Field</h2>
+      <p>Every vehicle is electric, GPS-tracked, and loaded with precision agri-tools.</p>
+    </div>
+    <div class="fleet-grid">
+      <div class="fleet-card"><div class="fleet-emoji">🛵</div><h3>Field Technician Bikes</h3><p>Light electric motorbikes for last-mile field access, carrying sampling kits and tablet-connected to the sWaaS platform.</p><span class="fleet-tag">Electric · Tablet-connected</span></div>     
+      <div class="fleet-card"><div class="fleet-emoji">🚐</div><h3>Command Van</h3><p>Mobile operations hub carrying a full squadron of sprout weeding tools,for offline analysis.</p><span class="fleet-tag">Electric · GPS · AI-onboard</span></div>
+      <div class="fleet-card"><div class="fleet-emoji">🚁</div><h3>Precision Weeding Drones</h3><p>Multi-rotor drones with chain sprout weeding (payload) and 45-minute flight time per charge for large-area coverage.</p><span class="fleet-tag">Autonomous</span></div>
+      
+    </div>
+  </div>
+</section>
+
+<section class="register" id="register">
+  <div class="register-inner">
+    <div class="register-left">
+      <h2>Start Your<br/><em>Free Trial</em><br/>Today</h2>
+      <p>Join hundreds of progressive farmers using the sWaaS ecosystem to reduce weed costs by up to 60% while cutting chemical usage in half.</p>
+      <div class="badge-list">
+       
+        <div class="badge"><span class="badge-dot"></span>1 Gunta free trial</div>
+      
+        <div class="badge"><span class="badge-dot"></span>AI+IoT -powered</div>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>Create Account</h3>
+      <p class="form-sub">Sprout Weeding-as-a-Service (S-WaaS)</p>
+      <form id="signupForm" novalidate>
+        <div class="form-row">
+          <div class="form-field"><label for="firstName">First Name</label><input type="text" id="firstName" placeholder="Raju" required /></div>
+          <div class="form-field"><label for="lastName">Last Name</label><input type="text" id="lastName" placeholder="Patil" required /></div>
+        </div>
+        <div class="form-field"><label for="email">Email Address</label><input type="email" id="email" placeholder="callerinfoid@gmail.com" required /></div>
+        <div class="form-field"><label for="phone">Phone Number</label><input type="tel" id="phone" placeholder="+91 98860 60490" /></div>
+        <div class="form-field">
+          <label for="farmSize">Farm Size (Gunta/Acres)</label>
+          <select id="farmSize">
+            <option value="">Select size…</option>
+            <option>Under 1 Gunta/Acres</option>
+            <option>5–20 Gunta/Acres</option>
+            <option>20–100 Gunta/Acres</option>
+            <option>100+ Gunta/Acres</option>
+          </select>
+        </div>
+        <div class="form-field"><label for="password">New Password</label><input type="password" id="password" placeholder="••••••••" required /></div>
+        <button type="submit" class="form-submit">Create My Account →</button>
+        <p class="form-note">By signing up you agree to our <a href="#" style="color:var(--green-mid)">Terms of Service</a> and <a href="#" style="color:var(--green-mid)">Privacy Policy</a>.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-pill">Pricing</div>
+      <h2>Plans for Every Farm</h2>
+      <p>Transparent, crop-season pricing. No hidden fees. Scale up or down as your needs change.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-amount">₹Rs 40 - 90</div>
+        <div class="price-period">Per Gunta / Acre / Season</div>
+        <ul class="price-features">
+          <li>Up to 10 acres</li>
+          <li>Monthly Mobile / drone scan</li>
+          <li>Basic weed risk report</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#register" class="btn btn-outline">Get Started</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier">⭐ FPO/Channel Partners</div>
+        <div class="price-amount">₹Rs 40 - 90</div>
+        <div class="price-period">Per Gunta / Acre / Season</div>
+        <ul class="price-features">
+          <li>Up to 100 acres</li>
+          <li>Weekly AI scans</li>
+          <li>Mobile / drone intervention included</li>
+          <li>Agristack dashboard</li>
+          <li>Priority phone support</li>
+        </ul>
+        <a href="#register" class="btn" style="background:var(--yellow);color:var(--green-deep);width:100%;text-align:center;display:block">Start Free Trial(1 Gunta)</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Franchise</div>
+        <div class="price-amount">Rs 40 - 90</div>
+        <div class="price-period">Per Gunta / Acre / Season</div>
+        <ul class="price-features">
+          <li>Unlimited acreage*</li>
+          <li>Dedicated drone fleet</li>
+          <li>White-label platform</li>
+          <li>DPI/Agristack integration</li>
+          <li>24/7 dedicated team</li>
+        </ul>
+        <a href="mailto:callerinfoid@gmail.com" class="btn btn-outline">Contact Services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="agristack">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Sprout<span>Weeders</span>.Com</div>
+      <p class="footer-desc">India's first AI-powered Sprout Weeding-as-a-Service ecosystem — protecting farmers' yield from the ground up.</p>
+      <a href="#register" class="btn btn-primary" style="font-size:.85rem;padding:10px 22px">Join sWaaS →</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#platform">Platform</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div class="footer-col" id="dpi">
+      <h4>Products</h4>
+      <ul>
+        <li><a href="#">Agristack API</a></li>
+        <li><a href="#">DPI Framework</a></li>
+        <li><a href="#">Drone Network</a></li>
+        <li><a href="#">AI Engine</a></li>
+        <li><a href="#">Mobile App</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Farmer Portal</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 SproutWeeders.Com · All rights reserved</p>
+    <p>Made with 🌱 for farmers · <a href="mailto:callerinfoid@gmail.com.com">callerinfoid@gmail.com</a></p>
+  </div>
+</footer>
+
+<div id="toast">🎉 Account created! Welcome to sWaaS.</div>
+
+<script>
+  // ── Hamburger ──
+  const toggle = document.getElementById('navToggle');
+  const links  = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    links.classList.toggle('open');
+  });
+
+  // ── Dropdown triggers ──
+  document.querySelectorAll('.nav-trigger').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const targetId = btn.dataset.dd;
+      const parentLi = btn.closest('li');
+      const isOpen   = parentLi.classList.contains('open');
+
+      // Close all others
+      document.querySelectorAll('.nav-links > li').forEach(li => li.classList.remove('open'));
+
+      // Toggle this one
+      if (!isOpen) parentLi.classList.add('open');
+    });
+  });
+
+  // ── Close on outside click ──
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-links > li').forEach(li => li.classList.remove('open'));
+  });
+  document.querySelectorAll('.dropdown').forEach(dd => {
+    dd.addEventListener('click', e => e.stopPropagation());
+  });
+
+  // ── Close nav & dropdowns when a link is clicked (mobile) ──
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    toggle.classList.remove('open');
+    links.classList.remove('open');
+    document.querySelectorAll('.nav-links > li').forEach(li => li.classList.remove('open'));
+  }));
+
+  // ── Form submit toast ──
+  document.getElementById('signupForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3800);
+    e.target.reset();
+  });
+</script>
 </body>
 </html>
